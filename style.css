@@ -1,0 +1,1302 @@
+/* ================================================
+   БАЗОВЫЕ СТИЛИ
+   ================================================ */
+
+html {
+  height: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #1a1a2e;
+  overflow: hidden;
+  padding-bottom: env(safe-area-inset-bottom);
+  overscroll-behavior: none;
+  touch-action: pan-x pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* ================================================
+   ИГРОВОЙ КОНТЕЙНЕР
+   ================================================ */
+
+#gameContainer {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  max-width: 800px;
+  max-height: 800px;
+  margin: 0 auto;
+  overflow: visible;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+canvas {
+  display: block;
+  background: #2d4f1e;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* ================================================
+   HUD (ИНТЕРФЕЙС)
+   ================================================ */
+
+#hud {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  height: 54px;
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  z-index: 12;
+  pointer-events: none;
+  font-family: Arial, sans-serif;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+#hud .block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+#hpWrap {
+  flex: 0 0 20%;
+  min-width: 110px;
+}
+
+#ammoWrap {
+  flex: 0 0 15%;
+  min-width: 90px;
+}
+
+#levelWrap {
+  flex: 0 0 15%;
+  min-width: 90px;
+}
+
+#expWrap {
+  flex: 0 0 20%;
+  min-width: 90px;
+}
+
+.hud-label {
+  font-size: 12px;
+  line-height: 14px;
+  opacity: 0.9;
+  color: rgba(255, 255, 255, 0.95) !important;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.hud-label .hud-number {
+  font-weight: bold;
+  opacity: 1;
+  color: rgba(255, 255, 255, 0.95) !important;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
+  flex: 0 0 auto;
+}
+
+.bar-outer {
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+  position: relative;
+}
+
+.bar-inner {
+  height: 100%;
+  border-radius: 999px;
+  transform-origin: left center;
+  transition: width 0.3s ease;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.bar-value {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.95) !important;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 15;
+  display: none;
+}
+
+#hpBarInner {
+  background: linear-gradient(90deg, #d63031, #ff7675);
+}
+
+#ammoBarInner {
+  background: linear-gradient(90deg, #00b894, #55efc4);
+}
+
+#levelBarInner {
+  background: linear-gradient(90deg, #9b59b6, #e8daef);
+}
+
+#expBarInner {
+  background: linear-gradient(90deg, #3498db, #5dade2);
+}
+
+.hud-icon {
+  display: inline-flex;
+  width: 18px;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 14px;
+  filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.9));
+  opacity: 0.95;
+}
+
+/* ================================================
+   ПАНЕЛЬ ВРАГОВ
+   ================================================ */
+
+#enemyPanel {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 8px 16px;
+  z-index: 10;
+  pointer-events: none;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: bold;
+  font-size: 12px;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+#enemyCount {
+  color: #ff6b6b;
+  font-size: 13px;
+}
+
+#chestCount {
+  color: #f1c40f;
+  font-size: 11px;
+}
+
+/* ================================================
+   УПРАВЛЕНИЕ (ДЖОЙСТИК И КНОПКИ)
+   ================================================ */
+
+#joystickContainer {
+  position: fixed; /* Изменено для динамического позиционирования */
+  bottom: 60px;
+  left: 40px;
+  width: 120px;
+  height: 120px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  z-index: 10; /* Понижен z-index, чтобы кнопки были поверх */
+  pointer-events: none; /* Джойстик не перехватывает события (управление через document) */
+  transition:
+    opacity 0.2s ease-out,
+    transform 0.1s ease-out; /* Плавное появление/исчезновение */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Тень для глубины */
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform, opacity; /* Оптимизация для анимации */
+}
+
+#fpsDisplay {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  color: #0f0;
+  font-weight: bold;
+  font-size: 10px;
+  font-family: monospace;
+  z-index: 10;
+  pointer-events: none;
+  display: block;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+}
+
+/* Отладочная панель джойстика (только для мобильных) */
+#joystickDebugPanel {
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  width: 200px;
+  max-width: calc(100vw - 30px);
+  background: rgba(0, 0, 0, 0.85);
+  border: 2px solid rgba(0, 255, 0, 0.5);
+  border-radius: 8px;
+  padding: 8px;
+  font-family: monospace;
+  font-size: 10px;
+  color: #0f0;
+  z-index: 1000;
+  pointer-events: none;
+  display: none; /* По умолчанию скрыта, показывается только на мобильных */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* Показываем отладочную панель только на мобильных устройствах */
+@media (max-width: 768px), (max-height: 650px), (orientation: portrait) {
+  #joystickDebugPanel {
+    display: block;
+  }
+}
+
+/* Скрываем отладочную панель на десктопах */
+@media (pointer: fine) and (hover: hover) {
+  #joystickDebugPanel {
+    display: none !important;
+  }
+}
+
+.debug-title {
+  font-weight: bold;
+  font-size: 11px;
+  color: #0f0;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+  text-align: center;
+}
+
+.debug-line {
+  display: flex;
+  justify-content: space-between;
+  margin: 3px 0;
+  line-height: 1.3;
+}
+
+.debug-line span:first-child {
+  color: rgba(0, 255, 0, 0.7);
+  margin-right: 8px;
+}
+
+.debug-line span:last-child {
+  color: #0f0;
+  font-weight: bold;
+  text-align: right;
+  flex: 1;
+  word-break: break-all;
+}
+
+#joystickTurnZones {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.turn-zone {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+  border-radius: 50%;
+}
+
+/* Левая зона поворота (когда джойстик отклонен влево больше чем на 45° от вертикали для движения вперед, или больше чем на 15° для движения назад) */
+.turn-zone-left {
+  left: 0;
+  background: radial-gradient(ellipse at left center, rgba(255, 200, 0, 0.7), rgba(255, 200, 0, 0.2));
+  /* Сектор поворота:
+     - Верхняя часть: исключаем 25% (зона движения вперед ±45°)
+     - Нижняя часть: исключаем только 4.2% (зона движения назад ±15°, tan(15°) ≈ 0.268)
+     Для визуализации используем приблизительные значения */
+  clip-path: polygon(0 0, 50% 0, 50% 25%, 0 25%, 0 95.8%, 50% 95.8%, 50% 100%, 0 100%);
+  border-top-left-radius: 50%;
+  border-bottom-left-radius: 50%;
+}
+
+/* Правая зона поворота (когда джойстик отклонен вправо больше чем на 45° от вертикали для движения вперед, или больше чем на 15° для движения назад) */
+.turn-zone-right {
+  right: 0;
+  background: radial-gradient(ellipse at right center, rgba(255, 200, 0, 0.2), rgba(255, 200, 0, 0.7));
+  /* Сектор поворота:
+     - Верхняя часть: исключаем 25% (зона движения вперед ±45°)
+     - Нижняя часть: исключаем только 4.2% (зона движения назад ±15°, tan(15°) ≈ 0.268)
+     Для визуализации используем приблизительные значения */
+  clip-path: polygon(50% 0, 100% 0, 100% 25%, 50% 25%, 50% 95.8%, 100% 95.8%, 100% 100%, 50% 100%);
+  border-top-right-radius: 50%;
+  border-bottom-right-radius: 50%;
+}
+
+#joystick {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(145deg, #4e5d16, #3e4a11);
+  border-radius: 50%;
+  border: 3px solid #2c3a0d;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  cursor: move;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  pointer-events: none; /* Управление через document, но может быть включено динамически */
+  will-change: transform; /* Оптимизация для анимации */
+  position: relative;
+  z-index: 2; /* Поверх зон поворота */
+}
+
+#fireButton {
+  position: fixed; /* Изменено для динамического позиционирования */
+  bottom: 80px;
+  right: 40px;
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(145deg, #b33939, #8b0000);
+  border-radius: 50%;
+  border: 3px solid #5c0000;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.4);
+  transition:
+    opacity 0.2s ease-out,
+    transform 0.1s ease-out;
+  opacity: 0; /* Скрыта по умолчанию, появляется при касании */
+  z-index: 999;
+  pointer-events: none; /* События обрабатываются через overlay */
+}
+
+#fireButton:active {
+  transform: scale(0.95);
+  background: linear-gradient(145deg, #8b0000, #b33939);
+}
+
+#fireButton:after {
+  content: '𖦏';
+}
+
+.controls-label {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-family: Arial, sans-serif;
+  z-index: 10;
+  opacity: 0.4;
+  transform: scale(0.9);
+  transition: all 0.3s;
+}
+
+#moveLabel {
+  bottom: 160px;
+  left: 50px;
+}
+
+#fireLabel {
+  bottom: 160px;
+  right: 50px;
+}
+
+#keyboardControls {
+  position: absolute;
+  display: block;
+  top: 80px;
+  left: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+  font-family: Arial, sans-serif;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ================================================
+   КНОПКИ МЕНЮ И УПРАВЛЕНИЯ
+   ================================================ */
+
+.menu-btn {
+  position: absolute;
+  top: 13px;
+  right: 13px;
+  width: 46px;
+  height: 46px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 22px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  z-index: 16 !important;
+  user-select: none;
+  transition: all 0.2s;
+  pointer-events: auto !important;
+}
+
+.menu-btn:hover {
+  background: rgba(0, 184, 148, 0.25);
+  box-shadow: 0 0 12px rgba(0, 184, 148, 0.3);
+}
+
+#ammoButton {
+  top: 70px;
+  right: 10px !important;
+  width: 48px;
+  height: 48px;
+  background: radial-gradient(circle, #f1c40f 40%, #f39c12 70%, #e67e22 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20%;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 2px 6px rgba(255, 255, 255, 0.2);
+  font-size: 0;
+  opacity: 0.8;
+  pointer-events: auto !important;
+  z-index: 16 !important;
+}
+
+#ammoButton::before {
+  content: '✨';
+  position: absolute;
+  font-size: 16px;
+  top: 4px;
+  left: 4px;
+  animation: sparkle 2s infinite;
+}
+
+#ammoButton::after {
+  content: '💥';
+  position: absolute;
+  font-size: 22px;
+  color: #ffeb3b;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 1.5s infinite;
+}
+
+#ammoButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Расширенное состояние кнопок рекламы */
+#ammoButton.expanded {
+  width: auto;
+  min-width: 180px;
+  padding: 0 16px;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  transform-origin: right center;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border-radius: 10px;
+}
+
+#ammoButton.expanded::after {
+  position: static;
+  transform: none;
+  margin-right: 8px;
+  font-size: 20px;
+  animation: none;
+}
+
+#ammoButton.expanded .button-text {
+  display: inline-block;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+#addTimeButton {
+  top: 120px;
+  right: 10px;
+  width: 48px;
+  height: 48px;
+  background: radial-gradient(circle, #f1c40f 40%, #f39c12 70%, #e67e22 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20%;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 2px 6px rgba(255, 255, 255, 0.2);
+  font-size: 0;
+  position: absolute;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: all 0.2s;
+  pointer-events: auto !important;
+  z-index: 16 !important;
+}
+
+#addTimeButton::before {
+  content: '✨';
+  position: absolute;
+  font-size: 16px;
+  top: 4px;
+  left: 4px;
+  animation: sparkle 2s infinite;
+}
+
+#addTimeButton::after {
+  content: '⏰';
+  position: absolute;
+  font-size: 22px;
+  color: #ffeb3b;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 1.5s infinite;
+}
+
+#addTimeButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+#addTimeButton.expanded {
+  width: auto;
+  min-width: 180px;
+  padding: 0 16px;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  transform-origin: right center;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border-radius: 10px;
+}
+
+#addTimeButton.expanded::after {
+  position: static;
+  transform: none;
+  margin-right: 8px;
+  font-size: 20px;
+  animation: none;
+}
+
+#addTimeButton.expanded .button-text {
+  display: inline-block;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+#findChestsButton {
+  border-radius: 20% !important;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 2px 6px rgba(255, 255, 255, 0.2);
+  font-size: 0;
+  opacity: 0.8;
+  transition: all 0.2s;
+}
+
+#findChestsButton::before {
+  content: '✨';
+  position: absolute;
+  font-size: 16px;
+  top: 4px;
+  left: 4px;
+  animation: sparkle 2s infinite;
+}
+
+#findChestsButton::after {
+  content: '🔍';
+  position: absolute;
+  font-size: 22px;
+  color: #ffeb3b;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 1.5s infinite;
+}
+
+#findChestsButton.expanded {
+  width: auto !important;
+  min-width: 180px;
+  padding: 0 16px;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  transform-origin: right center;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border-radius: 10px !important;
+}
+
+#findChestsButton.expanded::after {
+  position: static;
+  transform: none;
+  margin-right: 8px;
+  font-size: 20px;
+  animation: none;
+}
+
+#findChestsButton.expanded .button-text {
+  display: inline-block;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* ================================================
+   КНОПКИ ПЕРКОВ
+   ================================================ */
+
+#perkButtons {
+  position: absolute;
+  top: 240px !important;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 21 !important;
+  pointer-events: auto !important;
+}
+
+.perk-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: bold;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  pointer-events: auto !important;
+  z-index: 22 !important;
+}
+
+.perk-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.perk-count {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+}
+
+.perk-active {
+  outline: 2px solid rgba(0, 184, 148, 0.65);
+  box-shadow: 0 0 14px rgba(0, 184, 148, 0.35);
+}
+
+.perk-btn#perk_invis::before {
+  content: '👤';
+}
+
+.perk-btn#perk_shield::before {
+  content: '🛡️';
+}
+
+.perk-btn#perk_artillery::before {
+  content: '🚀';
+}
+
+.perk-btn#perk_medkit::before {
+  content: '➕';
+}
+
+.perk-btn#perk_bigammo::before {
+  content: '📦';
+}
+
+.perk-btn::before {
+  animation: perkPulse 2s infinite ease-in-out;
+}
+
+/* ================================================
+   ПАНЕЛЬ ТАЙМЕРА
+   ================================================ */
+
+.timer-hud {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+  opacity: 1;
+}
+
+.timer-hud .hud-number {
+  color: #ff6b6b !important;
+  font-size: 22px;
+  text-shadow: 2px 2px 0 #000;
+}
+
+/* ================================================
+   МЕНЮ ПАУЗЫ
+   ================================================ */
+
+#pauseOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 45;
+  pointer-events: auto;
+  font-family: Arial, sans-serif;
+}
+
+#pauseOverlay.show {
+  display: flex;
+}
+
+#pauseBox {
+  width: min(94%, 380px);
+  background: rgba(20, 20, 30, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+  padding: 24px;
+  color: rgba(255, 255, 255, 0.97);
+  text-align: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.pause-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 18px;
+  background: linear-gradient(90deg, #00b894, #55efc4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.pause-stats {
+  margin: 16px 0 24px 0;
+  text-align: left;
+}
+
+.stat-line {
+  font-size: 15px;
+  margin: 6px 0;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+}
+
+.stat-line span:nth-child(2) {
+  float: right;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.pause-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pauseBtn {
+  pointer-events: auto;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.97);
+  padding: 14px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 15px;
+  transition: all 0.2s;
+}
+
+.pauseBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.pauseBtn.primary {
+  background: rgba(0, 184, 148, 0.35);
+  border-color: rgba(0, 184, 148, 0.5);
+}
+
+.pauseBtn.primary:hover {
+  background: rgba(0, 184, 148, 0.5);
+}
+
+.copyright {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.6;
+}
+
+.copyright .version {
+  display: inline-block;
+  background: rgba(102, 126, 234, 0.3);
+  color: rgba(102, 126, 234, 1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.copyright a {
+  color: rgba(102, 126, 234, 0.8);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.copyright a:hover {
+  color: rgba(102, 126, 234, 1);
+  text-decoration: underline;
+}
+
+/* ================================================
+   МОДАЛЬНОЕ ОКНО
+   ================================================ */
+
+#modalOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  pointer-events: auto;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+#modalOverlay.show {
+  display: flex;
+}
+
+#modalBox {
+  width: min(92%, 420px);
+  max-width: calc(100vw - 20px);
+  max-height: calc(100vh - 20px);
+  background: rgba(20, 20, 30, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
+  padding: 14px 14px 12px;
+  color: rgba(255, 255, 255, 0.95);
+  text-align: center;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+#modalTitle {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
+  flex-shrink: 0;
+}
+
+#modalText {
+  white-space: pre-line;
+  font-size: 13px;
+  line-height: 1.35;
+  opacity: 0.95;
+  margin-bottom: 12px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.85);
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  min-height: 0;
+}
+
+#modalText table {
+  width: 100%;
+  font-size: 12px;
+}
+
+#modalText th {
+  font-weight: bold;
+  color: #55efc4;
+}
+
+#modalButtons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
+.modalBtn {
+  pointer-events: auto;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.95);
+  padding: 9px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  min-width: 120px;
+  font-weight: bold;
+}
+
+.modalBtn.primary {
+  background: rgba(0, 184, 148, 0.25);
+  border-color: rgba(0, 184, 148, 0.45);
+}
+
+.modalBtn.danger {
+  background: rgba(214, 48, 49, 0.25);
+  border-color: rgba(214, 48, 49, 0.45);
+}
+
+/* ================================================
+   ТАБЛИЦА РЕКОРДОВ
+   ================================================ */
+
+.record-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.record-table th {
+  text-align: center;
+  padding: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: #55efc4;
+}
+
+.record-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.record-table tr:last-child td {
+  border-bottom: none;
+}
+
+.record-row-highlight {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 184, 148, 0.2),
+    rgba(0, 184, 148, 0.1)
+  ) !important;
+}
+
+.sound-off {
+  opacity: 0.6;
+}
+
+/* ================================================
+   АНИМАЦИИ
+   ================================================ */
+
+@keyframes shieldSpin {
+  from {
+    transform: rotate(0deg) scale(1.2);
+    opacity: 0.5;
+  }
+
+  to {
+    transform: rotate(360deg) scale(1.3);
+    opacity: 0.2;
+  }
+}
+
+@keyframes perkPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+
+  50% {
+    transform: scale(1.15);
+    filter: brightness(1.3);
+  }
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: rotate(180deg) scale(1.2);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.3);
+  }
+}
+
+/* ================================================
+   АДАПТИВНОСТЬ
+   ================================================ */
+
+/* Джойстик и кнопка стрельбы доступны на всех устройствах с тачскрином
+   Они появляются динамически при касании экрана */
+
+@media (max-width: 768px) {
+  body {
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+  }
+
+  #gameContainer {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  canvas {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+  }
+
+  /* На мобильных подсказки скрываются */
+}
+
+/* Скрываем джойстик и кнопку стрельбы только на устройствах без сенсорного управления (десктопы с мышью) */
+/* Используем (pointer: fine) для определения устройств с точным указателем (мышь) */
+/* и (hover: hover) для устройств, поддерживающих hover (обычно десктопы) */
+@media (pointer: fine) and (hover: hover) {
+  #joystickContainer {
+    display: none !important;
+  }
+  
+  #fireButton {
+    display: none !important;
+  }
+}
+
+/* =====================
+   ЯЗЫК И ШАРИНГ
+   ===================== */
+
+.language-selector {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.lang-btn {
+  /* padding: 12px 20px; */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.lang-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.lang-btn.active {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  box-shadow: 0 0 20px rgba(245, 87, 108, 0.5);
+}
+
+
+/* Скрыть клавиатурные подсказки на мобильных */
+@media (max-width: 768px), (max-height: 650px), (orientation: portrait) {
+  #keyboardControls {
+    display: none !important;
+  }
+}
+
+/* Мобильные стили для модального окна */
+@media (max-width: 768px), (max-height: 650px), (orientation: portrait) {
+  #modalOverlay {
+    padding: 10px;
+    align-items: flex-start;
+    padding-top: max(10px, env(safe-area-inset-top));
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
+  }
+
+  #modalBox {
+    width: calc(100% - 20px);
+    max-width: calc(100vw - max(20px, env(safe-area-inset-left) + env(safe-area-inset-right)));
+    max-height: calc(100vh - max(20px, env(safe-area-inset-top) + env(safe-area-inset-bottom)));
+    margin: 0;
+    padding: 12px;
+  }
+
+  #modalTitle {
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+
+  #modalText {
+    font-size: 12px;
+    margin-bottom: 10px;
+    max-height: calc(100vh - 200px);
+  }
+
+  .modalBtn {
+    min-width: 100px;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}
+
+/* Очень маленькие экраны */
+@media (max-width: 360px), (max-height: 500px) {
+  #modalBox {
+    padding: 10px;
+  }
+
+  #modalTitle {
+    font-size: 14px;
+  }
+
+  #modalText {
+    font-size: 11px;
+    max-height: calc(100vh - 180px);
+  }
+
+  .modalBtn {
+    min-width: 80px;
+    padding: 7px 8px;
+    font-size: 12px;
+  }
+
+  #modalButtons {
+    gap: 8px;
+  }
+}

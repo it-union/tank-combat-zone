@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Танк: Боевая зона</title>
+  <link rel="stylesheet" href="style.css?v=3.9">
+  <!--YandexGamesSDK-->
+  <script src="/sdk.js"></script>
+</head>
+
+<body>
+  <div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Кнопки управления игрой -->
+    <button id="fullscreenBtn" class="menu-btn" style="top: 70px; right: 70px;" title="Полноэкранный">⛶</button>
+    <div id="menuBtn" class="menu-btn">☰</div>
+    <button id="ammoButton" class="menu-btn" title="Получить 10 снарядов">📦</button>
+
+    <!-- HUD панель -->
+    <div id="hud">
+      <div class="block" id="hpWrap">
+        <div class="hud-label"><span class="hud-icon" aria-hidden="true">♥</span> <span class="hud-number"
+            id="hpValueInline">100/100</span></div>
+        <div class="bar-outer" id="hpBarOuter">
+          <div class="bar-inner" id="hpBarInner"></div>
+          <div class="bar-value" id="hpValue">100/100</div>
+        </div>
+      </div>
+
+      <div class="block" id="ammoWrap">
+        <div class="hud-label"><span class="hud-icon" aria-hidden="true">●</span> <span class="hud-number"
+            id="ammoValueInline">30/∞</span></div>
+        <div class="bar-outer" id="ammoBarOuter">
+          <div class="bar-inner" id="ammoBarInner"></div>
+          <div class="bar-value" id="ammoValue">30/∞</div>
+        </div>
+      </div>
+
+      <div class="block" id="levelWrap">
+        <div class="hud-label"><span class="hud-icon" aria-hidden="true">★</span> <span class="hud-number"
+            id="levelValueInline">1</span></div>
+        <div class="bar-outer" id="levelBarOuter">
+          <div class="bar-inner" id="levelBarInner"></div>
+          <div class="bar-value" id="levelValue">1</div>
+        </div>
+      </div>
+
+      <div class="block" id="expWrap">
+        <div class="hud-label"><span class="hud-icon" aria-hidden="true">⟡</span> <span class="hud-number"
+            id="expValueInline">0/100</span></div>
+        <div class="bar-outer" id="expBarOuter">
+          <div class="bar-inner" id="expBarInner"></div>
+          <div class="bar-value" id="expValue">0/100</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Панель таймера уровня -->
+    <div id="timerHud" class="block timer-hud" style="display: none;">
+      <div class="hud-label">
+        <span class="hud-icon" title="Срочная миссия">⏰</span>
+        <span class="hud-number" id="timerDisplay">03:00</span>
+      </div>
+    </div>
+
+    <!-- Панель активного перка -->
+    <div id="perkHud" class="block timer-hud" style="display:none; top: 112px;">
+      <div class="hud-label">
+        <span class="hud-icon" id="perkHudIcon">⏳</span>
+        <span class="hud-number" id="perkHudTimer">00:00</span>
+      </div>
+    </div>
+
+    <!-- Кнопка добавления времени -->
+    <button id="addTimeButton" class="menu-btn" style="display: none;" title="Добавить 1 минуту (реклама)">⏰</button>
+
+    <!-- Кнопка поиска сундуков -->
+    <button id="findChestsButton" class="menu-btn" title="Найти сундуки (реклама)"
+      style="top: 170px; right: 10px; width: 48px; height: 48px; background: radial-gradient(circle, #3498db, #2980b9); display: flex;">🔍</button>
+
+    <!-- Панель количества врагов -->
+    <div id="enemyPanel">
+      <div id="enemyCount">ВРАГИ: 0</div>
+      <div id="chestCount">ЯЩИКИ: 0</div>
+    </div>
+
+    <!-- Виртуальный джойстик -->
+    <div id="joystickContainer">
+      <div id="joystickTurnZones">
+        <div class="turn-zone turn-zone-left"></div>
+        <div class="turn-zone turn-zone-right"></div>
+      </div>
+      <div id="joystick"></div>
+    </div>
+
+    <!-- FPS счетчик (только для мобильных) -->
+    <div id="fpsDisplay">FPS: 60</div>
+
+    <!-- Отладочная панель джойстика (только для мобильных) -->
+    <div id="joystickDebugPanel" style="display: none;">
+      <div class="debug-title">🎮 Джойстик Debug</div>
+      <div class="debug-line"><span>Активен:</span> <span id="debugActive">нет</span></div>
+      <div class="debug-line"><span>Touch ID:</span> <span id="debugTouchId">-</span></div>
+      <div class="debug-line"><span>targetJoy:</span> <span id="debugTargetJoy">0, 0</span></div>
+      <div class="debug-line"><span>joy:</span> <span id="debugJoy">0, 0</span></div>
+      <div class="debug-line"><span>joystickX/Y:</span> <span id="debugJoystickXY">0, 0</span></div>
+      <div class="debug-line"><span>Магнитуда:</span> <span id="debugMagnitude">0</span></div>
+      <div class="debug-line"><span>Позиция:</span> <span id="debugPosition">-</span></div>
+      <div class="debug-line"><span>События:</span> <span id="debugEvents">0</span></div>
+    </div>
+
+    <!-- Кнопка огня -->
+    <div id="fireButton"></div>
+
+    <!-- Подсказка по клавишам -->
+    <div id="keyboardControls">WASD / Shift / Пробел</div>
+
+    <!-- Кнопки перков -->
+    <div id="perkButtons">
+      <button class="perk-btn" id="perk_invis" title="Невидимость на 10 сек"><span class="perk-count"
+          id="perkCount_invis">0</span></button>
+      <button class="perk-btn" id="perk_shield" title="Щит (неуязвимость) на 10 сек"><span class="perk-count"
+          id="perkCount_shield">0</span></button>
+      <button class="perk-btn" id="perk_artillery" title="Артиллерия (x10 урон)"><span class="perk-count"
+          id="perkCount_artillery">0</span></button>
+      <button class="perk-btn" id="perk_medkit" title="Большая аптечка (полное HP)"><span class="perk-count"
+          id="perkCount_medkit">0</span></button>
+      <button class="perk-btn" id="perk_bigammo" title="Большой боекомплект (+20)"><span class="perk-count"
+          id="perkCount_bigammo">0</span></button>
+    </div>
+
+    <!-- Меню паузы -->
+    <div id="pauseOverlay">
+      <div id="pauseBox">
+        <div class="pause-title">ТАНК: БОЕВАЯ ЗОНА</div>
+        <div class="pause-stats">
+          <div class="stat-line"><span id="pauseLevelLabel">Уровень:</span> <span id="pauseLevel">1</span></div>
+          <div class="stat-line"><span id="pauseHealthLabel">Жизнь:</span> <span id="pauseHp">100/100</span></div>
+          <div class="stat-line"><span id="pauseShellsLabel">Снаряды:</span> <span id="pauseAmmo">30</span></div>
+          <div class="stat-line"><span id="pauseScoreLabel">Счет:</span> <span id="pauseScore">0</span></div>
+        </div>
+        <div class="pause-buttons">
+          <button class="pauseBtn" id="continueBtn">Продолжить</button>
+          <button class="pauseBtn primary" id="newGameBtn">Новая игра</button>
+          <button class="pauseBtn" id="recordsBtn">Рекорды</button>
+          <button class="pauseBtn" id="howToPlayBtn">📖 Описание игры</button>
+          <button class="pauseBtn" id="languageBtn">🌐 Язык</button>
+          <button class="pauseBtn" id="soundToggleBtn">🔊 Звук</button>
+          <button class="pauseBtn" id="closeGameBtn" style="display: none;">Выход</button>
+        </div>
+        <div class="copyright">
+          <span class="version" id="version">v3.9</span> © eto-udobno<br>
+          eto-udobno@yandex.ru
+        </div>
+      </div>
+    </div>
+
+    <!-- Модальное окно -->
+    <div id="modalOverlay">
+      <div id="modalBox">
+        <div id="modalTitle"></div>
+        <div id="modalText"></div>
+        <div id="modalButtons"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="yandex-sdk.js?v=3.9"></script>
+  <script src="i18n.js?v=3.9"></script>
+
+  <script src="sound.js?v=3.9"></script>
+  <script src="controls.js?v=3.9"></script>
+  <script src="game-i18n-patch.js?v=3.9"></script>
+  <script src="perfomance.js?v=3.9"></script>
+  <script src="variables.js?v=3.9"></script>
+
+
+  <script src="perks.js?v=3.9"></script>
+  <script src="records.js?v=3.9"></script>
+  <script src="enemys.js?v=3.9"></script>
+  <script src="turrets.js?v=3.9"></script>
+  <script src="radiations.js?v=3.9"></script>
+  <script src="decors.js?v=3.9"></script>
+  <script src="mines.js?v=3.9"></script>
+  <script src="chests.js?v=3.9"></script>
+  <script src="timers.js?v=3.9"></script>
+  <script src="player.js?v=3.9"></script>
+  <script src="map.js?v=3.9"></script>
+  <script src="scene.js?v=3.9"></script>
+  <script src="game.js?v=3.9"></script>
+  <script src="buttons.js?v=3.9"></script>
+</body>
+
+</html>
