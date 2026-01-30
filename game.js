@@ -27,6 +27,81 @@ document.addEventListener('mousedown', (e) => {
   }
 });
 
+// Предотвращение прокрутки и swipe-to-refresh на iOS
+// Дополнительная защита от прокрутки во время игры
+let scrollPreventionTouchY = 0;
+let scrollPreventionTouchX = 0;
+
+// Обработчик touchstart для отслеживания начальной позиции (дополнительный к controls.js)
+document.addEventListener('touchstart', (e) => {
+  // Сохраняем позицию только если игра активна
+  if (!gamePaused && !modalOpen) {
+    scrollPreventionTouchY = e.touches[0].clientY;
+    scrollPreventionTouchX = e.touches[0].clientX;
+  }
+}, { passive: true });
+
+// Обработчик touchmove для предотвращения прокрутки (дополнительный к controls.js)
+document.addEventListener('touchmove', (e) => {
+  // Работаем только если игра активна и есть начальная позиция
+  if ((gamePaused || modalOpen) || !scrollPreventionTouchY || !scrollPreventionTouchX) {
+    return;
+  }
+  
+  const touchY = e.touches[0].clientY;
+  const touchX = e.touches[0].clientX;
+  const deltaY = touchY - scrollPreventionTouchY;
+  const deltaX = touchX - scrollPreventionTouchX;
+  
+  // Предотвращаем вертикальную прокрутку (swipe-to-refresh) в верхней части экрана
+  if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY > 0 && scrollPreventionTouchY < 50) {
+    if (e.cancelable) {
+      e.preventDefault();
+    }
+    return false;
+  }
+  
+  // Предотвращаем вертикальную прокрутку во время игры (но разрешаем горизонтальную для джойстика)
+  // Разрешаем только горизонтальное движение для джойстика
+  if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 10) {
+    if (e.cancelable) {
+      e.preventDefault();
+    }
+    return false;
+  }
+}, { passive: false });
+
+document.addEventListener('touchend', () => {
+  scrollPreventionTouchY = 0;
+  scrollPreventionTouchX = 0;
+}, { passive: true });
+
+// Предотвращение прокрутки колесом мыши во время игры
+document.addEventListener('wheel', (e) => {
+  if (!gamePaused && !modalOpen) {
+    e.preventDefault();
+    return false;
+  }
+}, { passive: false });
+
+// Предотвращение прокрутки через клавиатуру во время игры
+document.addEventListener('keydown', (e) => {
+  if (!gamePaused && !modalOpen) {
+    // Блокируем клавиши прокрутки (Space, PageUp, PageDown, Arrow Up/Down)
+    if (['Space', 'PageUp', 'PageDown', 'ArrowUp', 'ArrowDown'].includes(e.code)) {
+      // Разрешаем Space только если это не прокрутка
+      if (e.code === 'Space' && e.target === document.body) {
+        e.preventDefault();
+        return false;
+      }
+      if (e.code !== 'Space') {
+        e.preventDefault();
+        return false;
+      }
+    }
+  }
+});
+
 canvas.addEventListener('mousemove', (e) => {
   //обновляем координаты мыши
   const rect = canvas.getBoundingClientRect();
@@ -704,11 +779,6 @@ function restartGame() {
   generateMap();
   updateHUD();
   updatePerkButtons(); // Обновить кнопки перков
-  
-  // Уведомляем Яндекс SDK о готовности игры после генерации карты
-  if (typeof notifyGameReady === 'function') {
-    notifyGameReady();
-  }
 }
 
 async function goToNextLevel() {
@@ -880,18 +950,34 @@ function continueGame() {
 
   generateMap();
   updateHUD();
-  
-  // Уведомляем Яндекс SDK о готовности игры после генерации карты
-  if (typeof notifyGameReady === 'function') {
-    notifyGameReady();
-  }
 }
 
 updateHUD();
 
 let g = hasSave();
 
+// Функция для вызова GameReady после полной готовности игры
+function callGameReadyWhenReady() {
+  // Ждем полной инициализации SDK и готовности игры
+  const checkReady = () => {
+    // Проверяем, что SDK инициализирован (или не требуется)
+    const sdkReady = typeof yaSDK !== 'undefined' ? (yaSDK !== null || typeof YaGames === 'undefined') : true;
+    
+    if (sdkReady && typeof notifyGameReady === 'function') {
+      notifyGameReady();
+    } else if (!sdkReady && typeof YaGames !== 'undefined') {
+      // Если SDK еще не инициализирован, ждем немного и проверяем снова
+      setTimeout(checkReady, 100);
+    }
+  };
+  
+  // Небольшая задержка для обеспечения готовности DOM и инициализации
+  setTimeout(checkReady, 50);
+}
+
 if (g > 0) {
+  // Если есть сохранение, показываем меню выбора
+  // GameReady вызывается когда меню доступно для взаимодействия
   showModal({
     title: t('game'),
     message: t('saveFound', g),
@@ -911,9 +997,13 @@ if (g > 0) {
       },
     ],
   });
+  // Уведомляем Яндекс SDK о готовности игры - меню доступно для взаимодействия
+  callGameReadyWhenReady();
 } else {
   // если сохранения нет — игра стартует как раньше
   restartGame();
+  // Уведомляем Яндекс SDK о готовности игры после генерации карты и инициализации
+  callGameReadyWhenReady();
 }
 
 initRecords();

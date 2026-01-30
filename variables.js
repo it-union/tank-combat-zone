@@ -1,4 +1,4 @@
-let version = 'v. 0.0.0.3';
+let version = 'v. 0.0.0.4';
 let adsToShow = 0;
 let adQueue = [];
 
